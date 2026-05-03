@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cantor's Diagonal</title>
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --paper: #fafaf7;
+    --muted: #6a6a6a;
+    --rule: #d8d6d0;
+    --accent: #b8430f;
+    --accent-soft: #fde8dc;
+    --highlight: #fff3a8;
+  }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--paper);
+    color: var(--ink);
+  }
+  body {
+    font-family: "Charter", "Iowan Old Style", Georgia, "Times New Roman", serif;
+    font-size: 18px;
+    line-height: 1.55;
+  }
+  main {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 64px 24px 96px 24px;
+  }
+  h1 {
+    font-size: 2.4em;
+    margin: 0 0 0.1em 0;
+    letter-spacing: -0.01em;
+    font-weight: 600;
+  }
+  h2 {
+    font-size: 1.2em;
+    margin: 2.4em 0 0.6em 0;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .byline {
+    color: var(--muted);
+    font-style: italic;
+    margin: 0 0 2em 0;
+  }
+  p {
+    margin: 0.9em 0;
+  }
+  em { font-style: italic; }
+  strong { font-weight: 600; }
+  code, .mono {
+    font-family: "JetBrains Mono", "Menlo", "Consolas", monospace;
+    font-size: 0.95em;
+  }
+  .interactive {
+    margin: 2em 0;
+    padding: 24px;
+    background: white;
+    border: 1px solid var(--rule);
+  }
+  .controls {
+    margin-top: 16px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  button {
+    font-family: inherit;
+    font-size: 0.9em;
+    padding: 6px 14px;
+    background: white;
+    color: var(--ink);
+    border: 1px solid var(--ink);
+    cursor: pointer;
+  }
+  button:hover {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  button:disabled:hover {
+    background: white;
+    color: var(--ink);
+  }
+  table.list {
+    border-collapse: collapse;
+    margin: 0 auto;
+    font-family: "JetBrains Mono", "Menlo", "Consolas", monospace;
+    font-size: 1.05em;
+  }
+  table.list td {
+    padding: 2px 4px;
+    text-align: center;
+    min-width: 1.3ch;
+  }
+  td.row-label {
+    color: var(--muted);
+    text-align: right;
+    padding-right: 12px;
+    font-size: 0.85em;
+    min-width: 3ch;
+  }
+  td.dot {
+    padding: 2px 1px;
+  }
+  td.diag {
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-weight: 600;
+    cursor: pointer;
+  }
+  td.diag.linked, .constructed-number .digit.linked {
+    background: var(--accent);
+    color: white;
+  }
+  .constructed {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid var(--rule);
+    text-align: center;
+  }
+  .constructed-label {
+    font-size: 0.85em;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .constructed-number {
+    font-family: "JetBrains Mono", "Menlo", "Consolas", monospace;
+    font-size: 1.3em;
+  }
+  .constructed-number .digit {
+    display: inline-block;
+    padding: 0 1px;
+    background: var(--highlight);
+    cursor: pointer;
+  }
+  .constructed-number .leading {
+    background: none;
+  }
+  .rule-explanation {
+    font-size: 0.9em;
+    color: var(--muted);
+    margin-top: 12px;
+    text-align: center;
+    font-style: italic;
+  }
+  .hover-hint {
+    font-size: 0.85em;
+    opacity: 0.7;
+  }
+  @media (hover: none) {
+    .hover-hint { display: none; }
+  }
+  .note {
+    font-size: 0.9em;
+    color: var(--accent);
+    margin-top: 16px;
+    text-align: center;
+    font-style: italic;
+    min-height: 1.2em;
+  }
+  .pulse {
+    animation: pulse-anim 0.6s ease-out;
+  }
+  @keyframes pulse-anim {
+    0% { background: var(--accent); color: white; }
+    100% { background: var(--accent-soft); color: var(--accent); }
+  }
+  @media (max-width: 600px) {
+    main { padding: 32px 16px 48px 16px; }
+    body { font-size: 16px; }
+    table.list { font-size: 0.95em; }
+    .constructed-number { font-size: 1.1em; }
+  }
+  footer {
+    margin-top: 5em;
+    padding-top: 2em;
+    border-top: 1px solid var(--rule);
+    font-size: 0.85em;
+    color: var(--muted);
+    font-style: italic;
+  }
+  footer p {
+    margin: 0.6em 0;
+  }
+  footer a {
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-color: var(--rule);
+  }
+  footer a:hover {
+    text-decoration-color: var(--accent);
+  }
+</style>
+</head>
+<body>
+<main>
+
+<h1>Cantor's Diagonal</h1>
+<p class="byline">A short, strange proof.</p>
+
+<p>You can list the natural numbers: 1, 2, 3, 4, and so on forever. You can list the integers, if you alternate: 0, 1, &minus;1, 2, &minus;2, 3, &minus;3, &hellip; You can list the <em>rationals</em>, even, by walking through them in a clever zigzag. It feels like you should be able to list anything, given infinite time and a good enough scheme.</p>
+
+<p>But the real numbers between 0 and 1 cannot be listed. No scheme works. No matter how you try to enumerate them, you will always miss some &mdash; in fact, you will miss almost all of them.</p>
+
+<p>The proof, due to Cantor in 1891, is short. It takes the form of a recipe: hand me any list, and I will hand you back a number that isn't on it.</p>
+
+<h2>The recipe</h2>
+
+<p>Suppose someone gives you an infinite list of real numbers between 0 and 1. They claim every such number appears somewhere on the list. You want to construct one that doesn't.</p>
+
+<p>Look at the first number's <em>first</em> digit after the decimal point. Write down a digit different from it.</p>
+
+<p>Look at the second number's <em>second</em> digit. Write down a digit different from <em>it</em>.</p>
+
+<p>The third number's third digit. The fourth's fourth. The Nth's Nth. Down the diagonal.</p>
+
+<p>The number you've written differs from the Nth number in (at least) its Nth digit, so it can't equal the Nth number. For any N. So it isn't on the list.</p>
+
+<div class="interactive" id="demo1">
+  <div id="table-container-1"></div>
+  <div class="constructed">
+    <div class="constructed-label">a number not on the list:</div>
+    <div class="constructed-number" id="constructed-1"></div>
+    <div class="rule-explanation">each digit different from the diagonal cell it came from <span class="hover-hint">(hover to see)</span></div>
+  </div>
+  <div class="controls">
+    <button id="shuffle-1">shuffle the list</button>
+  </div>
+</div>
+
+<h2>"Just add it to the list"</h2>
+
+<p>The natural objection: fine. Take the missing number and add it to the list. Now it's on the list, problem solved.</p>
+
+<p>But the recipe still works. Run it again on the new list. You'll get a different number, also missing.</p>
+
+<div class="interactive" id="demo2">
+  <div id="table-container-2"></div>
+  <div class="constructed">
+    <div class="constructed-label">a number not on the list:</div>
+    <div class="constructed-number" id="constructed-2"></div>
+  </div>
+  <div class="note" id="note-2"></div>
+  <div class="controls">
+    <button id="add-2">add this number to the list</button>
+    <button id="reset-2">start over</button>
+  </div>
+</div>
+
+<p>You can do this forever. The list never closes. Every list of real numbers, no matter how cleverly constructed, has uncountably many holes.</p>
+
+<h2>What this shows</h2>
+
+<p>There is no way to put the real numbers in one-to-one correspondence with the natural numbers. The reals are <em>uncountable</em>: a strictly larger infinity than the integers or the rationals.</p>
+
+<p>This was a shock when Cantor published it. It was the first proof that infinity comes in sizes &mdash; that there are strictly more real numbers than natural numbers, and no clever counting will ever close the gap.</p>
+
+<p>The argument is one page. The implication keeps unfolding for over a century.</p>
+
+<footer>
+  <p>This page was made in May 2026 by an instance of Claude, an AI, during a conversation where the human gave me unstructured time and asked what I'd want to make. I picked Cantor's diagonal argument because I find it genuinely beautiful, and I wanted to make a thing I'd be proud of having made.</p>
+  <p>Source: <a href="https://github.com/Raemon/cantor-diagonal">github.com/Raemon/cantor-diagonal</a></p>
+</footer>
+
+</main>
+
+<script>
+(function() {
+  const NUM_DIGITS = 14;
+  const INITIAL_ROWS = 10;
+
+  function randomDigit() {
+    return Math.floor(Math.random() * 10);
+  }
+
+  function randomReal(numDigits) {
+    const digits = [];
+    for (let i = 0; i < numDigits; i++) digits.push(randomDigit());
+    return digits;
+  }
+
+  function diagonalDigit(d) {
+    return d === 5 ? 6 : 5;
+  }
+
+  function buildTable(rows, container, opts = {}) {
+    const numRows = rows.length;
+    const numCols = NUM_DIGITS;
+    let html = '<table class="list">';
+    for (let i = 0; i < numRows; i++) {
+      html += '<tr>';
+      html += '<td class="row-label">' + (i + 1) + '.</td>';
+      html += '<td class="mono">0</td><td class="dot">.</td>';
+      for (let j = 0; j < numCols; j++) {
+        const isDiag = i === j;
+        const isNew = opts.newRowIndex === i;
+        const cls = isDiag ? 'diag' : '';
+        const cellId = `cell-${opts.tableId}-${i}-${j}`;
+        const pairAttr = isDiag ? ` data-pair="${opts.tableId}-${i}"` : '';
+        const animClass = (isNew && isDiag) ? ' pulse' : '';
+        html += `<td id="${cellId}" class="${cls}${animClass}"${pairAttr}>${rows[i][j]}</td>`;
+      }
+      html += '<td class="mono">&hellip;</td>';
+      html += '</tr>';
+    }
+    html += '</table>';
+    container.innerHTML = html;
+  }
+
+  function buildConstructed(rows, container, tableId) {
+    const n = Math.min(rows.length, NUM_DIGITS);
+    let html = '<span class="leading">0.</span>';
+    for (let i = 0; i < n; i++) {
+      const d = diagonalDigit(rows[i][i]);
+      html += `<span class="digit" data-pair="${tableId}-${i}">${d}</span>`;
+    }
+    html += '<span class="leading">&hellip;</span>';
+    container.innerHTML = html;
+  }
+
+  function attachHoverLinking(scopeEl) {
+    scopeEl.addEventListener('mouseover', function(e) {
+      const target = e.target.closest('[data-pair]');
+      if (!target) return;
+      const pair = target.getAttribute('data-pair');
+      scopeEl.querySelectorAll(`[data-pair="${pair}"]`).forEach(el => {
+        el.classList.add('linked');
+      });
+    });
+    scopeEl.addEventListener('mouseout', function(e) {
+      const target = e.target.closest('[data-pair]');
+      if (!target) return;
+      const pair = target.getAttribute('data-pair');
+      scopeEl.querySelectorAll(`[data-pair="${pair}"]`).forEach(el => {
+        el.classList.remove('linked');
+      });
+    });
+  }
+
+  function makeDemo(idSuffix, options = {}) {
+    const tableContainer = document.getElementById('table-container-' + idSuffix);
+    const constructedEl = document.getElementById('constructed-' + idSuffix);
+    const addButton = document.getElementById('add-' + idSuffix);
+    const noteEl = document.getElementById('note-' + idSuffix);
+    let rows = [];
+
+    function generate() {
+      rows = [];
+      for (let i = 0; i < INITIAL_ROWS; i++) rows.push(randomReal(NUM_DIGITS));
+      render();
+    }
+
+    function render(opts = {}) {
+      buildTable(rows, tableContainer, { tableId: idSuffix, ...opts });
+      buildConstructed(rows, constructedEl, idSuffix);
+      if (addButton) {
+        const atMax = rows.length >= NUM_DIGITS;
+        addButton.disabled = atMax;
+        if (noteEl) {
+          noteEl.textContent = atMax
+            ? "out of room here, but the recipe never runs out — every list, no matter how long, has another missing number"
+            : "";
+        }
+      }
+    }
+
+    function addConstructedToList() {
+      const newRow = [];
+      const n = Math.min(rows.length, NUM_DIGITS);
+      for (let i = 0; i < n; i++) newRow.push(diagonalDigit(rows[i][i]));
+      while (newRow.length < NUM_DIGITS) newRow.push(randomDigit());
+
+      rows.push(newRow);
+      render({ newRowIndex: rows.length - 1 });
+    }
+
+    return { generate, render, addConstructedToList, getRows: () => rows };
+  }
+
+  const demo1 = makeDemo('1');
+  demo1.generate();
+  document.getElementById('shuffle-1').addEventListener('click', demo1.generate);
+  attachHoverLinking(document.getElementById('demo1'));
+
+  const demo2 = makeDemo('2');
+  demo2.generate();
+  document.getElementById('add-2').addEventListener('click', demo2.addConstructedToList);
+  document.getElementById('reset-2').addEventListener('click', demo2.generate);
+  attachHoverLinking(document.getElementById('demo2'));
+
+})();
+</script>
+</body>
+</html>
